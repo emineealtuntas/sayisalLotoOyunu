@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Sayısal Loto Oyunu</h1>
+    <br>
+    <p>Aşağıdaki inputlara tahminlerini giriniz;</p>
+    <input type="number" id="tahmin1">
+    <input type="number" id="tahmin2">
+    <input type="number" id="tahmin3">
+    <input type="number" id="tahmin4">
+    <input type="number" id="tahmin5">
+    <input type="number" id="tahmin6"> 
+    <button id="tahminGirBtn" onclick="tahminGir()">Tahmin Gir</button>
+    <hr>
+    <button id="kuraCekBtn" onclick="oyunuBaslat()" disabled>Kurayı Çek</button>
+    <p id="sonuc"></p>
+    <p>Loto Sayıları</p>
+    <input type="number" id="kura1" readonly>
+    <input type="number" id="kura2" readonly>
+    <input type="number" id="kura3" readonly>
+    <input type="number" id="kura4" readonly>
+    <input type="number" id="kura5" readonly>
+    <input type="number" id="kura6" readonly> 
+
+    <script>
+       let kullanicininSayiDizisi = [];
+let bilinenSayilar = [];
+let bilinenSayiAdedi = 0;
+
+function tahminGir() {
+    let yeniTahminler = [
+        parseInt(document.getElementById("tahmin1").value),
+        parseInt(document.getElementById("tahmin2").value),
+        parseInt(document.getElementById("tahmin3").value),
+        parseInt(document.getElementById("tahmin4").value),
+        parseInt(document.getElementById("tahmin5").value),
+        parseInt(document.getElementById("tahmin6").value)
+    ];
+
+    if (!tumSayilarDogruMu(yeniTahminler)) {
+        alert("1-49 sayıları arasında bir sayı girmelisiniz.");
+        return;
+    }
+
+    if (ayniTahminKontrol(yeniTahminler)) {
+        alert("Aynı tahmin bir kez girilebilir.");
+        return;
+    }
+
+    kullanicininSayiDizisi = yeniTahminler.sort((a, b) => a - b);
+    bilinenSayilar = [];
+    bilinenSayiAdedi = 0;
+    duzenlenmisTahminleriGoster();
+    document.getElementById("tahminGirBtn").disabled = true;
+    document.getElementById("kuraCekBtn").disabled = false;
+    document.getElementById("sonuc").textContent = "";
+    document.getElementById("bilinenSayilar").textContent = "Bilinen Sayılar: ";
+    document.getElementById("bilinenSayiAdedi").textContent = "Bilinen Sayı Adedi: 0";
+}
+
+function ayniTahminKontrol(sayiDizisi) {
+    let uniqueSayilar = new Set(sayiDizisi);
+    return uniqueSayilar.size !== sayiDizisi.length;
+}
+
+function duzenlenmisTahminleriGoster() {
+    for (let i = 0; i < kullanicininSayiDizisi.length; i++) {
+        document.getElementById("tahmin" + (i + 1)).value = kullanicininSayiDizisi[i];
+    }
+    for (let i = kullanicininSayiDizisi.length; i < 6; i++) {
+        document.getElementById("tahmin" + (i + 1)).value = "";
+    }
+}
+
+function oyunuBaslat() {
+    let rastgeleSayilar = rastgeleSayiSec(6, 1, 49);
+    let eslesmeSayisi = sayilariKarsilastir(kullanicininSayiDizisi, rastgeleSayilar);
+
+    document.getElementById("sonuc").textContent = "Rastgele Sayılar: " + rastgeleSayilar.join(", ") +
+        "\nTahmininiz: " + kullanicininSayiDizisi.join(", ") +
+        "\nEşleşme Sayısı: " + eslesmeSayisi;
+
+    if (eslesmeSayisi > 0) {
+        bilinenSayilar = kullanicininSayiDizisi.filter(sayi => rastgeleSayilar.includes(sayi)).sort((a, b) => a - b);
+        bilinenSayiAdedi = eslesmeSayisi;
+        document.getElementById("bilinenSayilar").textContent = "Bilinen Sayılar: " + bilinenSayilar.join(", ");
+        document.getElementById("bilinenSayiAdedi").textContent = "Bilinen Sayı Adedi: " + bilinenSayiAdedi + " adet";
+    } else {
+        document.getElementById("bilinenSayilar").textContent = "Bilinen Sayılar: -";
+        document.getElementById("bilinenSayiAdedi").textContent = "Bilinen Sayı Adedi: 0";
+    }
+
+    document.getElementById("tahminGirBtn").disabled = false;
+    document.getElementById("kuraCekBtn").disabled = true;
+
+    rastgeleSayilar = rastgeleSayilar.sort((a, b) => a - b);
+    for (let i = 0; i < rastgeleSayilar.length; i++) {
+        document.getElementById("kura" + (i + 1)).value = rastgeleSayilar[i];
+    }
+}
+
+function tumSayilarDogruMu(sayiDizisi) {
+    return sayiDizisi.every(sayi => Number.isInteger(sayi) && sayi >= 1 && sayi <= 49);
+}
+
+function rastgeleSayiSec(adet, min, max) {
+    let rastgeleSayilar = [];
+    while (rastgeleSayilar.length < adet) {
+        let rastgeleSayi = Math.floor(Math.random() * (max - min + 1)) + min;
+        if (!rastgeleSayilar.includes(rastgeleSayi)) {
+            rastgeleSayilar.push(rastgeleSayi);
+        }
+    }
+    return rastgeleSayilar;
+}
+
+function sayilariKarsilastir(sayiDizisi1, sayiDizisi2) {
+    return sayiDizisi1.filter(sayi => sayiDizisi2.includes(sayi)).length;
+}
+    </script>
+</body>
+</html>
